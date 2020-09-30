@@ -1,0 +1,17 @@
+.container {
+  position: relative;
+  width: 128px;
+  margin-right: 5px;
+}
+
+.back-element {
+  position: relative;
+  z-index: 1;
+}
+
+.front-element {
+  position: relative !important;
+  bottom: 7.7rem;
+  left: 6.5rem;
+  z-index: 2 !important;
+}
