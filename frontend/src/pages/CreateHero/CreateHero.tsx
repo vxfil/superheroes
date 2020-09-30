@@ -6,6 +6,7 @@ import axios from 'axios';
 import './CreateHero.css';
 import { ImagePreview } from '../../components/Image/ImagePreview';
 import { IImages } from '../../../../backend/src/interfaces/images.interface';
+import { Message } from '../../components/Message';
 
 export const CreateHero = () => {
   const formik = useFormik({
@@ -38,15 +39,33 @@ export const CreateHero = () => {
         .max(50, 'Must be 15 characters or less')
         .required('Please fill the field'),
     }),
-    onSubmit: async (values) => {
-      console.log(values);
+    onSubmit: async (values, { resetForm }) => {
+      return axios
+        .post('http://localhost:4000/hero/create_hero', {
+          nickname: values.nickname,
+          real_name: values.real_name,
+          origin_description: values.origin_description,
+          superpowers: values.superpowers,
+          catch_phrase: values.catch_phrase,
+          images: images.map((img) => img.url),
+        })
+        .then((res) => {
+          resetForm({});
+          setFiles(null);
+          setMessage({ type: 'is-primary is-light', message: res.data });
+        })
+        .catch((err) =>
+          setMessage({ type: 'is-danger is-light', message: err.response.data })
+        );
     },
   });
 
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string>('');
   const [files, setFiles] = useState<null | FileList>(null);
   const [onLoad, setOnload] = useState<boolean>(false);
   const [images, setImages] = useState<IImages[]>([]);
+  const [message, setMessage] = useState<{ type: string; message: string }>();
+  const [messageIsClosed, setIsClosed] = useState<boolean>(true);
 
   const chooseFileHandler = (event: ChangeEvent<HTMLInputElement>) => {
     setFiles(event.currentTarget.files);
@@ -80,6 +99,9 @@ export const CreateHero = () => {
     >
       <div className="columns is-centered is-vcentered is-desktop">
         <div className="column is-one-quarter">
+          {message ? (
+            <Message type={message.type} message={message.message} />
+          ) : null}
           {error ? (
             <div className="notification is-danger is-light">
               <button className="delete" onClick={() => setError('')}></button>

@@ -1,5 +1,5 @@
 import express from 'express';
-import { UploadApiResponse, v2 as cloudinary } from 'cloudinary';
+import { v2 as cloudinary } from 'cloudinary';
 
 import { heroModel } from '../models/heroModel';
 import { IImages } from '../interfaces/images.interface';
@@ -7,7 +7,14 @@ import { IImages } from '../interfaces/images.interface';
 export const createHero = async (
   req: express.Request,
   res: express.Response
-) => {};
+) => {
+  try {
+    await new heroModel(req.body).save();
+    res.status(201).send('Hero is created!');
+  } catch (err) {
+    res.status(500).send('Something went wrong!');
+  }
+};
 
 export const uploadImages = async (
   req: express.Request,
