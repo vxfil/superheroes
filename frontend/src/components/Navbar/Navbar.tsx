@@ -8,7 +8,7 @@ const Navbar = () => {
 
   return (
     <nav
-      className="navbar is-light"
+      className="navbar is-dark"
       role="navigation"
       aria-label="main navigation"
     >

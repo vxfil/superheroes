@@ -3,10 +3,9 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
 
-import './CreateHero.css';
-import { ImagePreview } from '../../components/Image/ImagePreview';
-import { IImages } from '../../../../backend/src/interfaces/images.interface';
-import { Message } from '../../components/Message';
+import { ImagePreview } from '../components/ImagePreview/ImagePreview';
+import { IImages } from '../../../backend/src/interfaces/images.interface';
+import { Message } from '../components/Message';
 
 export const CreateHero = () => {
   const formik = useFormik({
@@ -19,44 +18,59 @@ export const CreateHero = () => {
     },
     validationSchema: Yup.object({
       nickname: Yup.string()
-        .min(2, 'Must be 8 characters or more')
-        .max(20, 'Must be 20 characters or less')
+        .min(2, 'Must be 2 characters or more')
+        .max(50, 'Must be 50 characters or less')
         .required('Please fill the field'),
       real_name: Yup.string()
-        .min(2, 'Must be 8 characters or more')
-        .max(20, 'Must be 20 characters or less')
+        .min(2, 'Must be 2 characters or more')
+        .max(50, 'Must be 50 characters or less')
         .required('Please fill the field'),
       origin_description: Yup.string()
         .min(8, 'Must be 8 characters or more')
-        .max(100, 'Must be 20 characters or less')
+        .max(100, 'Must be 100 characters or less')
         .required('Please fill the field'),
       superpowers: Yup.string()
         .min(2, 'Must be 2 characters or more')
-        .max(100, 'Must be 15 characters or less')
+        .max(100, 'Must be 100 characters or less')
         .required('Please fill the field'),
       catch_phrase: Yup.string()
-        .min(8, 'Must be 2 characters or more')
-        .max(50, 'Must be 15 characters or less')
+        .min(8, 'Must be 8 characters or more')
+        .max(50, 'Must be 50 characters or less')
         .required('Please fill the field'),
     }),
     onSubmit: async (values, { resetForm }) => {
-      return axios
-        .post('http://localhost:4000/hero/create_hero', {
-          nickname: values.nickname,
-          real_name: values.real_name,
-          origin_description: values.origin_description,
-          superpowers: values.superpowers,
-          catch_phrase: values.catch_phrase,
-          images: images.map((img) => img.url),
-        })
-        .then((res) => {
-          resetForm({});
-          setFiles(null);
-          setMessage({ type: 'is-primary is-light', message: res.data });
-        })
-        .catch((err) =>
-          setMessage({ type: 'is-danger is-light', message: err.response.data })
-        );
+      if (images.length === 0) {
+        setMessage({
+          type: 'is-danger is-light',
+          message: 'You need to upload at least one image',
+        });
+        return;
+      } else {
+        return axios
+          .post('http://localhost:4000/hero/create_hero', {
+            nickname: values.nickname,
+            real_name: values.real_name,
+            origin_description: values.origin_description,
+            superpowers: values.superpowers,
+            catch_phrase: values.catch_phrase,
+            images: images,
+          })
+          .then((res) => {
+            resetForm({});
+            setFiles(null);
+            setImages([]);
+            setMessage({
+              type: 'is-primary is-light',
+              message: res.data,
+            });
+          })
+          .catch((err) =>
+            setMessage({
+              type: 'is-danger is-light',
+              message: err.response.data,
+            })
+          );
+      }
     },
   });
 
@@ -65,7 +79,8 @@ export const CreateHero = () => {
   const [onLoad, setOnload] = useState<boolean>(false);
   const [images, setImages] = useState<IImages[]>([]);
   const [message, setMessage] = useState<{ type: string; message: string }>();
-  const [messageIsClosed, setIsClosed] = useState<boolean>(true);
+
+  console.log('files: ', files);
 
   const chooseFileHandler = (event: ChangeEvent<HTMLInputElement>) => {
     setFiles(event.currentTarget.files);
@@ -78,7 +93,6 @@ export const CreateHero = () => {
       setOnload(true);
       const formData = new FormData();
       for (let i = 0; i < files.length; i++) {
-        console.log(files[i]);
         formData.append(`images`, files[i], files[i].name);
       }
       axios
@@ -92,9 +106,15 @@ export const CreateHero = () => {
     }
   };
 
+  const filterImages = (value: string) => {
+    return setImages((prevState) =>
+      prevState.filter((img) => img.public_id !== value)
+    );
+  };
+
   return (
     <div
-      className="hero has-background-info-light is-fullheight-with-navbar"
+      className="hero has-background-info is-fullheight-with-navbar"
       style={{ justifyContent: 'center' }}
     >
       <div className="columns is-centered is-vcentered is-desktop">
@@ -209,16 +229,17 @@ export const CreateHero = () => {
                   <label className="file-label">
                     <input
                       className="file-input"
-                      type="file"
+                      id="images"
                       name="images"
+                      type="file"
                       multiple
                       onChange={chooseFileHandler}
                     />
                     <span className="file-cta">
                       <span className="file-icon">
-                        <i className="fas fa-upload"></i>
+                        <i className="far fa-folder-open"></i>
                       </span>
-                      <span className="file-label">Choose files</span>
+                      <span className="file-label">Choose files ...</span>
                     </span>
                   </label>
                 </div>
@@ -229,17 +250,20 @@ export const CreateHero = () => {
                   onClick={() => upload()}
                   type="button"
                 >
-                  Upload
+                  <span className="icon is-small">
+                    <i className="fas fa-cloud-upload-alt"></i>
+                  </span>
+                  <span>Upload</span>
                 </button>
               </div>
-
               <div className="field is-grouped">
-                {images.map((img, index) => {
+                {images.map((img) => {
                   return (
                     <ImagePreview
                       public_id={img.public_id}
                       url={img.url}
-                      key={index}
+                      key={img.public_id}
+                      filterImages={filterImages}
                     />
                   );
                 })}
@@ -247,7 +271,7 @@ export const CreateHero = () => {
 
               <div className="field">
                 <div className="control">
-                  <button className="button is-primary" type="submit">
+                  <button className="button is-danger" type="submit">
                     Create hero
                   </button>
                 </div>

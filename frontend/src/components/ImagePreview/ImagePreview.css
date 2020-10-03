@@ -1,10 +1,11 @@
 .container {
   position: relative;
   width: 128px;
-  margin-right: 5px;
 }
 
 .back-element {
+  width: 8rem;
+  height: 8rem;
   position: relative;
   z-index: 1;
 }

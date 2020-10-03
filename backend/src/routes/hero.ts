@@ -13,5 +13,8 @@ heroRouter.post(
   upload.array('images'),
   heroController.uploadImages
 );
+heroRouter.get('/get_heroes', heroController.getHeroes);
+heroRouter.get('/get_hero/:hero_id', heroController.getHero);
+heroRouter.delete('/delete_image/:public_id', heroController.deleteImage);
 
 export default heroRouter;
