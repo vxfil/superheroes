@@ -25,6 +25,7 @@ const Navbar = () => {
         >
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
         </a>
       </div>
       <div className={`navbar-menu ${!menuIsOpen ? null : 'is-active'}`}>
@@ -43,6 +44,13 @@ const Navbar = () => {
             to="/heroes"
           >
             Heroes
+          </NavLink>
+          <NavLink
+            className="navbar-item"
+            activeClassName="is-active"
+            to="/saga_test"
+          >
+            Saga test
           </NavLink>
         </div>
       </div>

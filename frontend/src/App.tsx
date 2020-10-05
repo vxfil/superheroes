@@ -6,6 +6,7 @@ import Navbar from './components/Navbar/Navbar';
 import { CreateHero } from './pages/CreateHero';
 import { Heroes } from './pages/Heroes';
 import { Hero } from './pages/Hero';
+import { SagaTest } from './pages/SagaTest';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route exact path="/" component={CreateHero} />
           <Route path="/hero/:hero_id" component={Hero} />
           <Route path="/heroes" component={Heroes} />
+          <Route path="/saga_test" component={SagaTest} />
         </Switch>
       </div>
     </Router>
